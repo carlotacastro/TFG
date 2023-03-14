@@ -45,8 +45,15 @@ Observacions importants sobre els conjunts de dades:
 2. Els dies festius addicionals són dies afegits a un dia festiu del calendari normal, per exemple, com succeeix normalment al voltant de Nadal (convertint la Nit de Nadal en un dia festiu).
 3. Els salaris del sector públic es paguen cada dues setmanes el dia 15 i l'últim dia del mes. Les vendes dels supermercats es podrien veure afectades per això.
 4. Un terratrèmol de magnitud 7,8 va afectar l'Equador el 16 d'abril de 2016. La gent es va concentrar en els esforços de socors donant aigua i altres productes de primera necessitat que van afectar molt les vendes dels supermercats durant diverses setmanes després del terratrèmol.
-5. *******afegir més
+5. Triem que les dades comencin el 30-4-2017 ja que la última botiga obre el 24-4-2017. Donem un temps de marge per a estabilitzar les ventes
+6. Només agafem les festes com a tipus nacionals. No es categoritzen entre locals o regionals ja que sembla impactar de forma negativa el rendiment.
+7. S'ha aplicat una transformació logarítmica a les vendes per solucionar un problema de linealitat mostrat en la trama residual, probablement a causa del creixement compost.
 
 
 ## Objectius del dataset
 Crear diversos models que prediguin amb més precisió les vendes per unitats de milers d'articles venuts a diferents botigues Favorita. El millor model es presentarà a la competició Kaggle volent trobar-se en el top 5% dels models.
+
+
+## Preprocessat
+El primer que he realitzat ha estat la neteja de les dades de cadascun dels datasets per separat donat que es tracta d'un dataset molt extens. Desprès de cada neteja s'ajunta cada dataset al final. Per a portar aquesta acció a terme he realitzat diferent mètodes:
+1.

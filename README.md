@@ -32,7 +32,7 @@ Les dates de les dades de la prova són per als 15 dies posteriors a l'última d
 ### stores.csv
 Emmagatzema metadades, com ara ciutat, estat, tipus i clúster( una agrupació de botigues similars).
 
-## oil.csv
+### oil.csv
 Preu diari del petroli. Inclou valors durant els períodes de temps de dades de l'entremanet i de test. (L'Equador és un país que depèn del petroli i la seva salut econòmica és molt vulnerable als xocs dels preus del petroli.)
 
 ### holidays_events.csv
@@ -46,8 +46,8 @@ Observacions importants sobre els conjunts de dades:
 3. Els salaris del sector públic es paguen cada dues setmanes el dia 15 i l'últim dia del mes. Les vendes dels supermercats es podrien veure afectades per això.
 4. Un terratrèmol de magnitud 7,8 va afectar l'Equador el 16 d'abril de 2016. La gent es va concentrar en els esforços de socors donant aigua i altres productes de primera necessitat que van afectar molt les vendes dels supermercats durant diverses setmanes després del terratrèmol.
 5. Triem que les dades comencin el 30-4-2017 ja que la última botiga obre el 24-4-2017. Donem un temps de marge per a estabilitzar les ventes
-6. Només agafem les festes com a tipus nacionals. No es categoritzen entre locals o regionals ja que sembla impactar de forma negativa el rendiment.
-7. S'ha aplicat una transformació logarítmica a les vendes per solucionar un problema de linealitat mostrat en la trama residual, probablement a causa del creixement compost.
+6. S'ha aplicat una transformació logarítmica a les vendes per solucionar un problema de linealitat mostrat en la trama residual, probablement a causa del creixement compost.
+7. L'entrenament i predicció es fa calculant l'error per a cada botiga tenint en compte les families de ventes.
 
 
 ## Objectius del dataset
@@ -56,4 +56,21 @@ Crear diversos models que prediguin amb més precisió les vendes per unitats de
 
 ## Preprocessat
 El primer que he realitzat ha estat la neteja de les dades de cadascun dels datasets per separat donat que es tracta d'un dataset molt extens. Desprès de cada neteja s'ajunta cada dataset al final. Per a portar aquesta acció a terme he realitzat diferent mètodes:
-1.
+
+1. Es crea la categoria _unique store_ per a identificar aquelles botigues que són exclusives d'una localitat. També es crea la categoria _new store_ per a les botigues que han obert passada la data d'inici del dataset
+2. Seleccionem unicament aquells esdeveniments que no han estat transferits i fem correccions en esdeveniments amb dates mal assignades per tal de tenir una concordança en les dades.
+3. Eliminem els duplicats
+4. Només agafem les festes com a tipus nacionals. No es categoritzen entre locals o regionals ja que sembla impactar de forma negativa el rendiment.
+5. Es genera l'atribut _wd__ _(work day)_ per a definir els dies laborals (True) dels festius (False), així com l'atribut _isclosed_
+6. S'afageix dates importants com Pasqua o el primer dia de l'any com atributs.
+7. S'afeigeixen valors nulls al dataset de l'oli i es creen diversos lags per fer que els seus valors passats semblin contemporanis amb els valors que estem intentant predir (fa que les sèries retardades siguin útils com a característiques per modelar la dependència en sèrie) així com atributs que indiquen la mitjana de l'oli semanal, bisemanal, mensual,etc.
+8. Finalment, s'omplen els valors buits de les transactions amb el nombre mitjà de transaccions per dia per botiga
+
+
+## Rendiment dels models
+| Model | Hiperparametres | Error |  
+| -- | -- | -- |
+| Random Forest | n_estimators=2000, max_depth = 50, max_features = 'auto', bootstrap = True, min_samples_leaf=2, min_samples_split=5, random_state=0 | 0.40827 |
+| XGBoost | n_estimators=500, learning_rate = 0.01, max_depth= 3, subsample = 0.5, colsample_bytree = 0.4, colsample_bylevel = 1, random_state=0 | 0.42645 |
+| Prophet |||
+| DeepAR |||

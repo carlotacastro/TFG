@@ -61,10 +61,13 @@ El primer que he realitzat ha estat la neteja de les dades de cadascun dels data
 2. Seleccionem unicament aquells esdeveniments que no han estat transferits i fem correccions en esdeveniments amb dates mal assignades per tal de tenir una concordança en les dades.
 3. Eliminem els duplicats
 4. Només agafem les festes com a tipus nacionals. No es categoritzen entre locals o regionals ja que sembla impactar de forma negativa el rendiment.
-5. Es genera l'atribut _wd__ _(work day)_ per a definir els dies laborals (True) dels festius (False), així com l'atribut _isclosed_
+5. Es genera l'atribut _wd_ _(work day)_ per a definir els dies laborals (True) dels festius (False), així com l'atribut _isclosed_
 6. S'afageix dates importants com Pasqua o el primer dia de l'any com atributs.
 7. S'afeigeixen valors nulls al dataset de l'oli i es creen diversos lags per fer que els seus valors passats semblin contemporanis amb els valors que estem intentant predir (fa que les sèries retardades siguin útils com a característiques per modelar la dependència en sèrie) així com atributs que indiquen la mitjana de l'oli semanal, bisemanal, mensual,etc.
-8. Finalment, s'omplen els valors buits de les transactions amb el nombre mitjà de transaccions per dia per botiga
+8. S'omplen els valors buits de les transactions amb el nombre mitjà de transaccions per dia per botiga
+9. Finalment, s'afageixen noves característiques de temps, incloent els períodes en què s'inicien les escoles (abril-maig i agost-setembre. Important per a captar l'estacionalitat de les vendes de productes escolars), els dies on es paguen als treballadors, _wageday_, el 15 i el 30 de cada mes i les dates del terratremol d'abril del 2016.
+10. Una altra característica que ha tingut un efecte molt positiu en la predicció de les dades és incloure atributs sobre els productes en promoció, _onpromotion_. S'han inclòs atributs que indiquen la mitjana dels prodcutes en promoció semanals, bisemanals, mensuals, etc.
+11.Tambés es fa servir un procès determinista per a produir sempre la mateixa sortida a partir de les mateixes condicions de partida o l'estat inicial
 
 
 ## Rendiment dels models

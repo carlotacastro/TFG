@@ -73,7 +73,7 @@ El primer que he realitzat ha estat la neteja de les dades de cadascun dels data
 ## Rendiment dels models
 | Model | Hiperparametres | Error |  
 | -- | -- | -- |
-| Random Forest | n_estimators=2000, max_depth = 50, max_features = 'auto', bootstrap = True, min_samples_leaf=2, min_samples_split=5, random_state=0 | 0.40827 |
+| Random Forest | n_estimators=1200, max_depth = 100, max_features = 'auto', bootstrap = True, min_samples_leaf=2, min_samples_split=2, random_state=0 | 0.40802 |
 | XGBoost | n_estimators=500, learning_rate = 0.01, max_depth= 3, subsample = 0.5, colsample_bytree = 0.4, colsample_bylevel = 1, random_state=0 | 0.42645 |
 | Prophet |||
 | DeepAR |||

@@ -66,9 +66,8 @@ El primer que he realitzat ha estat la neteja de les dades de cadascun dels data
 7. S'afeigeixen valors nulls al dataset de l'oli i es creen diversos lags per fer que els seus valors passats semblin contemporanis amb els valors que estem intentant predir (fa que les sèries retardades siguin útils com a característiques per modelar la dependència en sèrie) així com atributs que indiquen la mitjana de l'oli semanal, bisemanal, mensual,etc.
 8. S'omplen els valors buits de les transactions amb el nombre mitjà de transaccions per dia per botiga
 9. Finalment, s'afageixen noves característiques de temps, incloent els períodes en què s'inicien les escoles (abril-maig i agost-setembre. Important per a captar l'estacionalitat de les vendes de productes escolars), els dies on es paguen als treballadors, _wageday_, el 15 i el 30 de cada mes i les dates del terratremol d'abril del 2016.
-10. Una altra característica que ha tingut un efecte molt positiu en la predicció de les dades és incloure atributs sobre els productes en promoció, _onpromotion_. S'han inclòs atributs que indiquen la mitjana dels prodcutes en promoció semanals, bisemanals, mensuals, etc.
-11.Tambés es fa servir un procès determinista per a produir sempre la mateixa sortida a partir de les mateixes condicions de partida o l'estat inicial
-
+10. Una altra característica que ha tingut un efecte molt positiu en la predicció de les dades és incloure atributs sobre els productes en promoció, _onpromotion_. S'han inclòs atributs que indiquen la mitjana dels prodcutes en promoció semanals, bisemanals, mensuals, etc. així com les mitjanes de productes en promoció per a cada botiga.
+11. També es fa servir un procès determinista per a produir sempre la mateixa sortida a partir de les mateixes condicions de partida o l'estat inicial.
 
 ## Rendiment dels models
 | Model | Hiperparametres | Error |  

@@ -34,14 +34,9 @@ def holiday (data):
     # Adding event type
     df.loc[df.type=='Event', 'type'] = df.description.apply(lambda x: x[0:7])
      
-    # Merging holidays and final_df
+    # Selecting only the national holidays
     nat_df = df.query("locale=='National'")
-    loc_df = df.query("locale=='Local'")
-    reg_df = df.query("locale=='Regional'")
-    
     df = final_df.merge(nat_df, left_on=['date'], right_on=['date'], how='left')
-    df = df.merge(loc_df, left_on=['date', 'city'], right_on=['date', 'locale_name'], how='left')
-    df = df.merge(reg_df, left_on=['date', 'state'], right_on=['date', 'locale_name'], how='left')
 
     # Work days
     df['wd'] = True
@@ -60,11 +55,8 @@ def holiday (data):
 
    
     # Adding New Year
-    df['firstday'] = df.description_x.apply(lambda x: 1 if x=='Primer dia del ano' else 0)
-    df = df.drop(columns=['locale_x', 'locale_name_x', 'description_x', 'transferred_x',
-                           'locale_y', 'locale_name_y', 'description_y', 'transferred_y',
-                           'type_x', 'type_y', 'type',
-                           'locale', 'locale_name', 'description', 'transferred'])
+    df['firstday'] = df.description.apply(lambda x: 1 if x=='Primer dia del ano' else 0)
+    df = df.drop(columns=['type', 'locale', 'locale_name', 'description', 'transferred'])
 
     # Adding closure days
     df['isclosed'] = df.groupby(by=['date', 'store_nbr'])['sales'].transform(lambda x: 1 if x.sum()==0 else 0)    
@@ -85,11 +77,14 @@ def oil (data):
     df = df.set_index('date').resample("D").mean().interpolate(limit_direction='backward').reset_index()
     
     # Adding lags
-    n_lags = [1, 2, 3, 4]
+    n_lags = [1, 2, 3, 4, 5, 6, 7, 10, 14]
     for l in n_lags:
         df[f'lagoil_{l}_dcoilwtico'] = df['dcoilwtico'].shift(l)
 
     df['oil_week_avg'] = df['dcoilwtico'].rolling(7).mean()
+    df['oil_biweek_avg'] = df['dcoilwtico'].rolling(14).mean()
+    df['oil_1_month_avg'] = df['dcoilwtico'].rolling(30).mean()
+    df['oil_2_month_avg'] = df['dcoilwtico'].rolling(60).mean()
 
     df.dropna(inplace = True)
     
@@ -144,13 +139,34 @@ def features (data):
     
     df['daysinmonth'] = df.index.days_in_month.astype('int')
 
+    # Wages in the public sector are paid every two weeks on the 15th and on the last day of the month
+    df['wageday'] = ((df.index.is_month_end) | (df.index.day == 15))
+
+    earthquake_affected_dates = [d for d in pd.date_range('2016-04-16', periods=20, freq='D').tolist()]
+    df['earthquake_Aprin2016_effect'] = df.index.isin(earthquake_affected_dates)
+    
+    df['onpromotion_week_avg'] = df['onpromotion'].rolling(7).mean()
+    df['onpromotion_biweek_avg'] = df['onpromotion'].rolling(14).mean()
+    df['onpromotion_1_month_avg'] = df['onpromotion'].rolling(30).mean()
+    df['onpromotion_2_month_avg'] = df['onpromotion'].rolling(60).mean()
+    
+    df['onpromotion_week_avg'] = df['onpromotion_week_avg'].fillna(0)
+    df['onpromotion_biweek_avg'] = df['onpromotion_biweek_avg'].fillna(0)
+    df['onpromotion_1_month_avg'] = df['onpromotion_1_month_avg'].fillna(0)
+    df['onpromotion_2_month_avg'] = df['onpromotion_2_month_avg'].fillna(0)
+        
+    # Adding lags
+    for l in range(1,5):
+        df[f'onpromotion_lag_{l}'] = df['onpromotion'].shift(l)
+        df[f'onpromotion_lag_{l}'] = df[f'onpromotion_lag_{l}'].fillna(0)
+        
+
     # Dummy features
     df = pd.get_dummies(df, columns=['year'], drop_first=True)
     df = pd.get_dummies(df, columns=['quarter'], drop_first=True)
     df = pd.get_dummies(df, columns=['dayofweek'], drop_first=True)
     df = pd.get_dummies(df, columns=['store'], drop_first=True)
     df = pd.get_dummies(df, columns=['isevent'], drop_first=True)
-
     
 
     # DeterministicProcess
@@ -170,7 +186,7 @@ def features (data):
     # Outliers
     df['outliers'] = df.sales.apply(lambda x: 1 if x>30000 else 0)
     
-    df.drop(columns=['daysinmonth', 'month', 'city'], inplace=True)
+    df.drop(columns=['daysinmonth', 'month', 'state','city'], inplace=True)
     
     return df
 
@@ -187,67 +203,85 @@ def split_func (data, X, y, end_date, test_size):
     return X_train, y_train, X_test, y_test
 
 
+def create_sample_weights(X, target_date, weight=0.9):
+    extra_weight_days = X.index.get_level_values('date') > target_date
+    return np.array(list(map(lambda x: np.exp(-weight) if x == 0 else 1, extra_weight_days.astype('int'))))
+
 
 
 def feature_selection (data, end_df, n):
     
-    df = features(data).loc[:end_df,:].reset_index().set_index(['store_nbr', 'family', 'date']).sort_index()
+    df = data.loc[:end_df,:].reset_index().set_index(['store_nbr', 'family', 'date']).sort_index()
     y = np.log1p(df.loc[:,'sales'].unstack(['store_nbr', 'family']))
     
     # Selecting features
-    #Eliminem features que no ens aporten res com els estats, l'id o el tipus de botiga i no tenim en compte 'onpromotion' o 'transactions' ja 
-    #que dona molts de problemes amb valors NanS
-    X = df.drop(columns = ['id', 'sales', 'transactions', 'onpromotion', 'store_B', 'store_C', 'store_D', 'store_E', 'state'])
+    X = df.drop(columns = ['id', 'sales', 'transactions', 'store_B', 'store_C', 'store_D', 'store_E'])
     X = X.groupby(by='date').first()
         
-    y_tr = np.empty((diff_test-n,0))
-    y_te = np.empty((n,0))
-    pred_train_y = np.empty((diff_test-n,0))
-    pred_test_y = np.empty((n,0))
-    
+    # Train
+    if end_df <= date['date_end_train']:
+        y_tr = np.empty((93,0))
+        y_te = np.empty((n,0))
+        pred_train_y = np.empty((93,0))
+        pred_test_y = np.empty((n,0))
+    # Test
+    else:
+        y_tr = np.empty((diff_test-n,0))
+        y_te = np.empty((n,0))
+        pred_train_y = np.empty((diff_test-n,0))
+        pred_test_y = np.empty((n,0))
+        
+    select = []
+
     # A model for each shop
     for i in data.store_nbr.unique():
         y = df.loc[i,'sales'].unstack(['family'])
-        X = df.loc[i,X.columns]
+        X = df.loc[i, X.columns]
         X = X.groupby(by='date').first()
 
         # Splitting train and test and log transformation
         X_train, y_train, X_test, y_test = split_func(y, X, np.log1p(y), end_df, n)
                 
         # Exponentially weighted cost function
-        weights = X_train.year_2017.apply(lambda x: np.exp((-0.9)*1) if x == 0 else np.exp((-0.9)*0)) 
+        weights = create_sample_weights(X_train, '2017-07-01') 
         
-        # XGBRegressor
-        sel = SelectFromModel(xg.XGBRegressor(n_estimators=320, random_state=0))
-        sel.fit(X_train, y_train, sample_weight=weights)
-        selected_feat= X_train.columns[(sel.get_support())]
-        model = xg.XGBRegressor(n_estimators=320, random_state=0)
-        model.fit(X_train[selected_feat], y_train, sample_weight=weights)
-        xg_pred_train_y = model.predict(X_train[selected_feat]) 
-        xg_pred_test_y = model.predict(X_test[selected_feat])
+        # Random Forest Regressor
+        sel = SelectFromModel(RandomForestRegressor(n_estimators=1200, max_depth = 50, max_features = 'auto', bootstrap = True, min_samples_leaf=2, min_samples_split=2, random_state=0))
+        sel.fit(X_train, y_train, sample_weight = weights)
+        selected_feat=X_train.columns[(sel.get_support())]
+        select.append(selected_feat)
+        model= RandomForestRegressor(n_estimators=1200, max_depth = 100, max_features = 'auto', bootstrap = True, min_samples_leaf=2, min_samples_split=2, random_state=0)
+        model.fit(X_train[selected_feat], y_train, sample_weight = weights)
+        rf_pred_train_y = model.predict(X_train[selected_feat]) 
+        rf_pred_test_y = model.predict(X_test[selected_feat])
         
         y_tr = np.append(y_tr, y_train, axis=1)
         y_te = np.append(y_te, y_test, axis=1)
-        pred_train_y = np.append(pred_train_y, xg_pred_train_y, axis=1)
-        pred_test_y = np.append(pred_test_y, xg_pred_test_y, axis=1)
+        pred_train_y = np.append(pred_train_y, rf_pred_train_y, axis=1)
+        pred_test_y = np.append(pred_test_y, rf_pred_test_y, axis=1)
         
         # Performances of each shop
-        print(f'RMSLE_train st_n {i}: ', np.round(np.sqrt(mean_squared_error(y_train.clip(0.0), xg_pred_train_y.clip(0.0))), 4))
+        # Train
+        if end_df <= date['date_end_train']:
+            print(f'RMSLE_train {i}: ', np.round(np.sqrt(mean_squared_error(y_train.clip(0.0), rf_pred_train_y.clip(0.0))), 4), f'RMSLE_test {i}: ', np.round(np.sqrt(mean_squared_error(y_test.clip(0.0), rf_pred_test_y.clip(0.0))), 4))
         
+
     index = pd.MultiIndex.from_product([data.store_nbr.unique(), data.family.sort_values().unique()], names=['store_nbr', 'family'])
     
-    y_tr = pd.DataFrame(y_tr, columns=index, index=X_tr.index)
-    y_te = pd.DataFrame(y_te, columns=index, index=X_te.index)
+    y_tr = pd.DataFrame(y_tr, columns=index, index=X_train.index)
+    y_te = pd.DataFrame(y_te, columns=index, index=X_test.index)
     pred_train_y = pd.DataFrame(pred_train_y, columns=y_tr.columns, index=y_tr.index)
     pred_test_y = pd.DataFrame(pred_test_y, columns=y_te.columns, index=y_te.index)
     
     # Total performances
-    print(f'RMSLE_train tot: ', np.round(np.sqrt(mean_squared_error(y_tr.clip(0.0), pred_train_y.clip(0.0))), 4)) 
+    # Train
+    if end_df <= date['date_end_train']:
+        print(f'RMSLE_train tot: ', np.round(np.sqrt(mean_squared_error(y_tr.clip(0.0), pred_train_y.clip(0.0))), 4), f'RMSLE_test tot: ', np.round(np.sqrt(mean_squared_error(y_te.clip(0.0), pred_test_y.clip(0.0))), 4))
+
    
     y_tr = y_tr.stack(['store_nbr', 'family'])
-    y_te = y_te.stack(['store_nbr', 'family']) 
+    y_te = y_te.stack(['store_nbr', 'family'])
     pred_train_y = pred_train_y.stack(['store_nbr', 'family'])
     pred_test_y = pred_test_y.stack(['store_nbr', 'family'])
-
-    
-    return pred_test_y, y_te, selected_feat
+  
+    return pred_test_y, y_te, select

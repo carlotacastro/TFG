@@ -74,7 +74,7 @@ El primer que he realitzat ha estat la neteja de les dades de cadascun dels data
 | -- | -- | -- |
 | Random Forest | n_estimators=1200, max_depth = 50, max_features = 'auto', bootstrap = True, min_samples_leaf=2, min_samples_split=2, random_state=0 | 0.40591 |
 | XGBoost | n_estimators=500, learning_rate = 0.01, max_depth= 3, subsample = 0.5, colsample_bytree = 0.4, colsample_bylevel = 1, random_state=0 | 0.42432 |
-| Average Model | Mateixos paràmetres que a RF i a XGBoost | 0.40188 |
+| Average Model | RF: n_estimators=1200, max_depth = 50, max_features = 'auto', bootstrap = True, min_samples_leaf=2, min_samples_split=2, random_state=0, XG: n_estimators=500, learning_rate = 0.01, max_depth= 3, subsample = 0.5, colsample_bytree = 0.6, colsample_bylevel = 1, random_state=0 | 0.40109  |
 | Stacking | Mateixos paràmetres que a RF i a XGBoost|  0.41408 |
 | Prophet |||
 | DeepAR |||

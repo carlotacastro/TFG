@@ -93,3 +93,8 @@ Els models que s'han fet servir han estats els següents per ordre de rendiment:
 | Stacking | Mateixos paràmetres que a RF i a XGBoost|  0.41408 |
 | Prophet |||
 | DeepAR |||
+
+## Conclusions
+
+## Idees per a treballar en un futur
+

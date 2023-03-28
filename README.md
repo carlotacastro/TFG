@@ -77,7 +77,7 @@ La evaluació es fa amb l'RMSLE (Root Mean Squared Logarithmic Error). Donat que
 També s'ha considerat necessari fer un procès d'Hiperparametr Tuning per a cadascun dels models i triar els millors hiperparàmetres.
 
 Els models que s'han fet servir han estats els següents per ordre de rendiment:
-1. Average Model (És creen unes prediccions finals a partir de 30% de les prediccions del XGBoostRegressor i el RandomForestRegressor)
+1. Average Model (Es creen unes prediccions finals a partir de 30% de les prediccions del XGBoostRegressor i el RandomForestRegressor)
 2. RandomForestRegressor
 3. Stacking (RandomForestRegressor + XGBoostRegressor + LinearRegression)
 4. Prophet

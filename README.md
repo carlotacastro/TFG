@@ -69,6 +69,21 @@ El primer que he realitzat ha estat la neteja de les dades de cadascun dels data
 10. Una altra característica que ha tingut un efecte molt positiu en la predicció de les dades és incloure atributs sobre els productes en promoció, _onpromotion_. S'han inclòs atributs que indiquen la mitjana dels prodcutes en promoció semanals, bisemanals, mensuals, etc. així com les mitjanes de productes en promoció per a cada botiga i lags.
 11. També es fa servir un procès determinista per a produir sempre la mateixa sortida a partir de les mateixes condicions de partida o l'estat inicial.
 
+## Entrenament + Testing
+El primer que es fa es triar els atributs que hem decidit al Feature Selection que funcionen de manera més òptima per a cadascun dels nostres models. Realitzar l'entrenament com el testing per a cada botiga del nostre dataset (54 botigues) ha resultat en una millora significativa de les prediccions. També cal destacar que en afegir una funció de cost de pesos exponencial que feia émfasi en l'últim més de ventes abans de la predicció, el nostre error es va reduir encara més.
+
+La evaluació es fa amb l'RMSLE (Root Mean Squared Logarithmic Error). Donat que el RMSLE penalitza més predir valors més baixos que alts de les vendes en comptes de calcular directament la mitjana, primer es fa el logaritme de les ventes i posteriorment s'inverteixen els valors, es a dir, y = np.expm1(mean(np.log1p(df.sales))). Aquesta es la y que es passa com a submission per a que calculi l'RMSLE.
+
+També s'ha considerat necessari fer un procès d'Hiperparametr Tuning per a cadascun dels models i triar els millors hiperparàmetres.
+
+Els models que s'han fet servir han estats els següents per ordre de rendiment:
+1. Average Model (És creen unes prediccions finals a partir de 30% de les prediccions del XGBoostRegressor i el RandomForestRegressor)
+2. RandomForestRegressor
+3. Stacking (RandomForestRegressor + XGBoostRegressor + LinearRegression)
+4. Prophet
+5. DeepAR
+
+
 ## Rendiment dels models
 | Model | Hiperparametres | Error |  
 | -- | -- | -- |

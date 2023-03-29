@@ -8,6 +8,9 @@ def split_func (data, X, y, end_date, test_size):
     return X_train, y_train, X_test, y_test
     
     
+def create_sample_weights(X, target_date, weight=0.9):
+    extra_weight_days = X.index.get_level_values('date') > target_date
+    return np.array(list(map(lambda x: np.exp(-weight) if x == 0 else 1, extra_weight_days.astype('int'))))
 
     
     

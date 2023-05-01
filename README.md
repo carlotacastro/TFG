@@ -91,7 +91,7 @@ Els models que s'han fet servir han estats els següents per ordre de rendiment:
 | XGBoost | n_estimators=500, learning_rate = 0.01, max_depth= 3, subsample = 0.5, colsample_bytree = 0.4, colsample_bylevel = 1, random_state=0 | 0.42432 |
 | Average Model | RF: n_estimators=1200, max_depth = 50, max_features = 'auto', bootstrap = True, min_samples_leaf=2, min_samples_split=2, random_state=0, XG: n_estimators=500, learning_rate = 0.01, max_depth= 3, subsample = 0.5, colsample_bytree = 0.6, colsample_bylevel = 1, random_state=0 | 0.40109  |
 | Stacking | Mateixos paràmetres que a RF i a XGBoost|  0.41220 |
-| Prophet |||
+| Prophet | holidays = event_holiday, changepoint_prior_scale = 0.05, holidays_prior_scale = 0.01, seasonality_prior_scale = 0.01, seasonality_mode = 'additive', yearly_seasonality = False, weekly_seasonality = True, daily_seasonality = False | 3.24719 |
 | DeepAR |||
 
 ## Conclusions

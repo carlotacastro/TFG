@@ -124,7 +124,7 @@ Per a Chicago Crimes es faran servir els mateixos models fent. Amb l'objectiu d'
 Per a Chicago Crimes, cada columna representa un període on _Q1_ és la predicció del 24 de gener de 2023 al 6 de febrer del 2023, _Q2_ és la predicció del 18 de desembre de 2022 al 31 de desembre del 2022, _Q3_ és la predicció dels sis últims mesos de 2022 per al total de la ciutat, _Q4_ és la predicció de tot l'any 2022 per al total de la ciutat, _Q5_ és la predicció dels sis últims mesos de 2022 per comunitat, _Q6_ és la predicció de tot l'any 2022 per comunitat.
 
 | Model | Q1 | Q2 | Q3 | Q4 | Q5 | Q6 |
-| -- | -- | -- |
+| -- | -- | -- | -- | -- | -- |
 | DeepAr | 27.81\% | 58.25\% | 6.22\% | 19.98\% | 93.03\% | 88.88\% |
 | Prophet | 103.05\% | 54.19\% | 7.38\% | 7.44\% | 90.4\% | 89.44\% |
 | XGBoost | 39.95\% | 45.04\% | 3.82\% | 4.97\% | 80.88\% | 78.55\% |
